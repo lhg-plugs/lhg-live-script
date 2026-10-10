@@ -1,0 +1,1 @@
+{"$schema":"https://json.schemastore.org/claude-code-marketplace.json","name":"lhg-plugs","owner":{"name":"刘洪光"},"plugins":[{"description":"直播话术专家：开播 3 秒留人钩子→五段式脚本→逼单倒计时→违禁词合规审计","name":"lhg-live-script","source":"./"}]}
