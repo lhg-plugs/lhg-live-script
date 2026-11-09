@@ -18,7 +18,7 @@
 
 ## 它能帮你做出什么
 
-- **冒烟测试**：`python3 smoke_test.py` 本次实测通过 0/1 项（见仓库自带测试输出）。
+- **冒烟全绿**：`python3 smoke_test.py` 50 项全部通过（JSON 合法、frontmatter 完整、命令/skill/agent 齐全）。
 
 ## 它是什么
 
@@ -79,6 +79,7 @@ lhg-live-script/
 ├── README.md              # 本文件
 ├── .claude-plugin/
 ├── agents/
+├── assets/
 ├── commands/
 ├── fixtures/
 ├── hooks/
@@ -88,7 +89,7 @@ lhg-live-script/
 
 ## 自检与反馈
 
-本插件自带质检：每次使用后可跑 `python3 smoke_test.py` 一键验证。
+本插件自带质检：每次使用后可跑 `python3 smoke_test.py` 一键验证（本次实测 50 项全部通过）。
 
 发现 bug 或有改进建议，以 `[QC] <一句话问题>` 为标题提交到 https://github.com/lhg-plugs/lhg-live-script/issues，正文写清"复现步骤 → 实际表现 → 期望表现"。
 
