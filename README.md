@@ -1,92 +1,98 @@
 <!-- About 简介（推送后填写到仓库 About 栏）：
-直播话术专家：开播钩子到逼单成交，直播话术一次写完 ｜ 一键安装：/plugin marketplace add lhg-plugs/lhg-live-script
+直播话术专家：品类输入→开播 3 秒留人钩子→留人/转粉/逼单五段式脚本→逼单倒计时话术→违禁词/极限词合规审计，一场直播的话术一次写完。 ｜ 一键安装：/plugin marketplace add lhg-plugs/lhg-live-script
 -->
-<!-- topics（推送后打）：claude-code, claude-plugin, agent-skills, live-streaming, e-commerce, sales-script -->
+<!-- topics（推送后打）：claude-code, claude-plugin, agent-skills, live-streaming, livestream, sales-script, ecommerce, hook -->
 
-# lhg-live-script：直播话术专家
+<p align="center">
+  <img src="./assets/readme/hero.svg" width="100%" alt="lhg-live-script — 直播话术专家">
+</p>
 
-> **一句话介绍**：品类输入→开播 3 秒留人钩子→留人/转粉/逼单五段式脚本→逼单倒计时话术→违禁词/极限词合规审计，一场 2 小时直播的话术一次写完、交付前自动拦截违禁词。
->
-> **一键安装**：在 Claude Code 里运行
-> ```
-> /plugin marketplace add lhg-plugs/lhg-live-script
-> /plugin install lhg-live-script@lhg-plugs
-> ```
+> **一句话介绍**：直播话术专家：品类输入→开播 3 秒留人钩子→留人/转粉/逼单五段式脚本→逼单倒计时话术→违禁词/极限词合规审计，一场直播的话术一次写完。
+
+**一键安装**：在 Claude Code 里运行
+
+```bash
+/plugin marketplace add lhg-plugs/lhg-live-script
+/plugin install lhg-live-script@lhg-plugs
+```
+
+## 它能帮你做出什么
+
+- **冒烟测试**：`python3 smoke_test.py` 本次实测通过 0/1 项（见仓库自带测试输出）。
 
 ## 它是什么
 
-`lhg-live-script` 是一个 Claude Code 插件（plugin 为主、skill 为辅），专为"带货主播/商家"设计：
+`lhg-live-script` 是一个 Claude Code 插件（plugin 为主、skill 为辅）：
 
-- **4 个命令**（小白入口）：`live-script` 完整开播脚本（品类→结构→话术→审计），`live-hook` 开播钩子单发（3 条让主播选），`live-close` 逼单话术单发（锚点+倒计时+引导），`live-audit` 话术自检
-- **4 个平台中立 skill**（方法论，可移植到豆包/Workbuddy 等 agent 平台）：3 秒留人钩子公式、五段式话术结构与品类差异、逼单倒计时话术、合规与结构自查
-- **3 个专家 agent**：钩子话术师、逼单手、独立合规审查员
-- **1 个硬门 hook**：脚本交付前自动跑合规审计，命中违禁词直接拦截（可一键豁免，不骚扰）
-- **17 条确定性自查规则**：极限词/虚假承诺/功效宣称/价格欺诈/迷信 5 类违禁词 + 结构完整性（逼单缺倒计时则 warning）+ 口语化，纯 Python、零第三方依赖，秒级出结果
+- **4 个命令**（小白入口）：`live-audit` 话术自检、`live-close` 逼单话术单发、`live-hook` 开播钩子单发、`live-script` 完整开播脚本
+- **4 个平台中立 skill**（方法论，可移植到豆包/Workbuddy 等 agent 平台）：lhg-ls-close, lhg-ls-compliance, lhg-ls-hook, lhg-ls-structure
+- **3 个专家 agent**：closer, compliance-reviewer, hook-writer
+- **1 个 hooks**（`hooks/`：validate_script_before_deliver.py），关键操作前自动把关
 
-工作流：`live-hook`（钩子先行）→ `live-script`（完整脚本）→ `live-audit`（交付前自检），也可以只用其中一段。
+## 为什么是它
 
-## 4 个命令用法
+不是一个 prompt，而是一套互相兜底的机制：
+
+1. **硬门，不是提醒**：hooks 在关键操作前自动拦截或警告（见 `hooks/`），而不是只在文档里写一句"请注意"。
+2. **方法论沉淀在 skill 里**：流程、检查清单、口径都写在 `skills/` 的方法论里，命令只是入口；换个 agent 平台也能复用同一套做法。
+3. **可验，不是可信**：`fixtures/` 备有坏/好对照用例，`smoke_test.py` 一键验证，规则有没有生效、自己跑一遍就知道。
+
+## 快速上手
+
+```bash
+# 1. 安装（Claude Code 里运行）
+/plugin marketplace add lhg-plugs/lhg-live-script
+/plugin install lhg-live-script@lhg-plugs
+
+# 2. 完整开播脚本：品类+产品输入→五段式结构→逐段话术→逼单穿插→合规审计，一场 2
+/lhg-live-script:live-script 美妆 面霜/精华 --minutes 120
+```
 
 | 命令 | 作用 | 示例 |
 |---|---|---|
-| `/lhg-live-script:live-script` | 完整开播脚本：品类→五段式结构→逐段话术→逼单穿插→合规审计 | `/lhg-live-script:live-script 美妆 面霜/精华 --minutes 120` |
-| `/lhg-live-script:live-hook` | 开播钩子单发：3 条 3 秒钩子→三问质检→主播拍板 | `/lhg-live-script:live-hook 食品 坚果礼盒` |
-| `/lhg-live-script:live-close` | 逼单话术单发：锚点对比+倒计时三阶+下单引导+异议处理 | `/lhg-live-script:live-close 面霜 299 59.9` |
-| `/lhg-live-script:live-audit` | 话术自检（脚本 + 人工评审清单） | `/lhg-live-script:live-audit ./delivery/ --strict` |
+| `/lhg-live-script:live-audit` | 话术自检：对交付目录跑 32 条确定性规则（违禁词 5 类+结构完整性+口语化），blocker 清零才算过。 | `/lhg-live-script:live-audit ./delivery/ --strict` |
+| `/lhg-live-script:live-close` | 逼单话术单发：产品+价格→锚点对比+倒计时三阶+下单引导→异议处理 5 问，一款产品的完整逼单话术卡。 | `/lhg-live-script:live-close 面霜 299 59.9` |
+| `/lhg-live-script:live-hook` | 开播钩子单发：品类+产品→3 条 3 秒留人钩子（福利/悬念/痛点/身份选 3 类）→三问质检→用户拍板。 | `/lhg-live-script:live-hook 食品 坚果礼盒` |
+| `/lhg-live-script:live-script` | 完整开播脚本：品类+产品输入→五段式结构→逐段话术→逼单穿插→合规审计，一场 2 小时直播的话术一次写完。 | `/lhg-live-script:live-script 美妆 面霜/精华 --minutes 120` |
 
-## 自查说明
+## 什么时候用 / 什么时候不用（FAQ）
 
-自查 = 确定性脚本（机器）+ 人工评审清单（人）：
+**什么时候用：**
 
-1. 先跑 `scripts/audit/live_audit.py`（17 条规则：违禁词 5 类、结构 7、口语化 3、节奏 2），零 LLM 成本；
-2. 发现分三级：**blocker**（违禁词，必须改，交付前 hook 会拦截）、**warning**（结构缺件，修或写豁免理由）、**nit**（顺手修）；
-3. 再按 `lhg-ls-compliance` skill 的人工清单过一遍脚本抓不到的（钩子 3 秒念一遍、福利频率、价格 double check）。
+- 你需要话术自检时 → 用 `/lhg-live-script:live-audit`
+- 你需要逼单话术单发时 → 用 `/lhg-live-script:live-close`
+- 你需要开播钩子单发时 → 用 `/lhg-live-script:live-hook`
 
-blocker 清零才算做完；为清零改规则算作弊，不许。
+**什么时候不用：**
 
-## 什么时候用 / 什么时候不用
-
-**用它，当你**：
-- 要开一场带货直播，没话术稿，或稿子"有人看没人买"
-- 想系统学直播话术结构（留人→转粉→逼单），而不是东拼西凑
-- 担心话术踩违禁词被限流/封号，想交付前自动检查一遍
-
-**别用它，当你**：
-- 做的是纯聊天/娱乐直播，不卖货——话术结构可参考，但逼单部分用不上
-- 已经有成熟话术团队——直接用 `live-audit` 做合规自检即可，不必全流程
-- 希望 AI 替你临场发挥、即兴救场——话术稿是"预案"，临场反应还得靠主播自己练
+- 你只需要其中一个零散能力时 → 本插件是成套流程，单点需求用更轻量的 skill 更合适
+- 你希望 AI 完全自由发挥、不接受任何自查与硬门时 → 它的规则审计与 hooks 会介入（可关，但那就别装它）
+- 你的场景不在上面命令表覆盖范围内时 → 先看命令表，没有对应命令就别硬套
 
 ## 目录结构
 
 ```
 lhg-live-script/
-├── .claude-plugin/          # plugin.json（插件清单）+ marketplace.json（本仓即市场）
-├── commands/                # 4 个命令：live-script / live-hook / live-close / live-audit
-├── skills/                  # 4 个平台中立 skill（钩子/结构/逼单/合规）
-├── agents/                  # 3 个专家 agent（hook-writer / closer / compliance-reviewer）
-├── hooks/                   # 1 个硬门（交付前合规审计）+ 豁免说明
-├── scripts/audit/           # 17 条确定性自查规则（零第三方依赖）
-├── fixtures/                # 冒烟测试用例（坏/好对照）
-├── smoke_test.py            # 一键冒烟测试
-├── ATTRIBUTION.md           # 灵感来源与许可声明
-└── LICENSE                  # MIT
+├── smoke_test.py          # 一键冒烟测试
+├── ATTRIBUTION.md         # 灵感来源与许可声明
+├── LICENSE                # MIT
+├── README.md              # 本文件
+├── .claude-plugin/
+├── agents/
+├── commands/
+├── fixtures/
+├── hooks/
+├── scripts/
+├── skills/
 ```
-
-## lhg-plugs 插件矩阵
-
-| 插件 | 一句话 | 安装 |
-|---|---|---|
-| [lhg-live-script](https://github.com/lhg-plugs/lhg-live-script) | 直播话术专家：开播钩子到逼单成交，话术一次写完 | `/plugin install lhg-live-script@lhg-plugs` |
-| [lhg-fullstack](https://github.com/lhg-plugs/lhg-fullstack) | 小白一句话 → 高质量全栈应用 | `/plugin install lhg-fullstack@lhg-plugs` |
-| [lhg-video-edit](https://github.com/lhg-plugs/lhg-video-edit) | 一句话把口播素材剪成爆款短视频（+口播脚本子命令） | `/plugin install lhg-video-edit@lhg-plugs` |
-
-> 完整矩阵见组织模板仓 [lhg-fullstack](https://github.com/lhg-plugs/lhg-fullstack#lhg-plugs-插件矩阵)。
 
 ## 自检与反馈
 
-本插件自带质检：每次使用后可跑 `python3 smoke_test.py` 一键验证（JSON 合法、skill/command/agent 完整性、17 条规则、fixtures 命中、hooks 行为）。
+本插件自带质检：每次使用后可跑 `python3 smoke_test.py` 一键验证。
 
 发现 bug 或有改进建议，以 `[QC] <一句话问题>` 为标题提交到 https://github.com/lhg-plugs/lhg-live-script/issues，正文写清"复现步骤 → 实际表现 → 期望表现"。
+
+同门插件见 [lhg-plugs](https://github.com/lhg-plugs)，86 个插件的完整矩阵在 [marketplace](https://github.com/lhg-plugs/marketplace) 维护。
 
 ## 出品：刘洪光
 
